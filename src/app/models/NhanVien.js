@@ -7,7 +7,7 @@ const NhanVien = new Schema({
   DiaChi: { type: String, maxLength: 255 },
   SoDienThoai: { type: String, maxLength: 255 },
   ChucVu: { type: String, maxLength: 255 },
-  AnhDaiDien: { type: String, maxLength: 255 },
+  Avatar: { type: String, maxLength: 255 },
 });
 
 module.exports = mongoose.model("NhanVien", NhanVien);

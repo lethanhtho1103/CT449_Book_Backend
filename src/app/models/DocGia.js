@@ -8,7 +8,8 @@ const DocGia = new Schema({
   Phai: { type: Number },
   DiaChi: { type: String, maxLength: 255 },
   DienThoai: { type: String, maxLength: 255 },
-  AnhDaiDien: { type: String, maxLength: 255 },
+  Password: { type: String, maxLength: 255 },
+  Avatar: { type: String, maxLength: 255 },
 });
 
 module.exports = mongoose.model("DocGia", DocGia);
