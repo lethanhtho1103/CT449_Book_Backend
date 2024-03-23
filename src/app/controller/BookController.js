@@ -80,20 +80,24 @@ class BookController {
           const id = req.params.id;
           const existingBook = await Sach.findById(id);
           if (existingBook) {
-            const TenSach = req.body.tenSach;
-            const DonGia = parseInt(req.body.donGia, 10);
-            const SoQuyen = parseInt(req.body.soQuyen, 10);
-            const MaNxb = req.body.idNxb;
-            const NamXuatBan = req.body.namXuatBan;
-            if (req.file) {
-              const HinhSach = req.file.originalname;
-              existingBook.HinhSach = HinhSach;
+            if (req.body.tenSach) {
+              existingBook.TenSach = req.body.tenSach;
             }
-            existingBook.TenSach = TenSach;
-            existingBook.DonGia = DonGia;
-            existingBook.NamXuatBan = NamXuatBan;
-            existingBook.SoQuyen = SoQuyen;
-            existingBook.MaNxb = MaNxb;
+            if (req.body.donGia) {
+              existingBook.DonGia = parseInt(req.body.donGia, 10);
+            }
+            if (req.body.soQuyen) {
+              existingBook.SoQuyen = parseInt(req.body.soQuyen, 10);
+            }
+            if (req.body.idNxb) {
+              existingBook.MaNxb = req.body.idNxb;
+            }
+            if (req.body.namXuatBan) {
+              existingBook.NamXuatBan = req.body.namXuatBan;
+            }
+            if (req.file) {
+              existingBook.HinhSach = req.file.originalname;
+            }
             await existingBook.save();
             return res.json({
               message: "Sách đã được cập nhật",

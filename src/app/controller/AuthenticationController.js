@@ -173,22 +173,29 @@ class Authentication {
           const id = req.params.id;
           const existingStaff = await DocGia.findById(id);
           if (existingStaff) {
-            const HoLot = req.body.lastName;
-            const Ten = req.body.username;
-            const NgaySinh = req.body.birth;
-            const Phai = req.body.sex;
-            const DienThoai = req.body.phone;
-            const DiaChi = req.body.address;
-            if (req.file) {
-              const Avatar = req.file.originalname;
-              existingStaff.Avatar = Avatar;
+            // Kiểm tra và cập nhật dữ liệu từ req.body
+            if (req.body.lastName) {
+              existingStaff.HoLot = req.body.lastName;
             }
-            existingStaff.HoLot = HoLot;
-            existingStaff.Ten = Ten;
-            existingStaff.NgaySinh = NgaySinh;
-            existingStaff.Phai = Phai;
-            existingStaff.DienThoai = DienThoai;
-            existingStaff.DiaChi = DiaChi;
+            if (req.body.username) {
+              existingStaff.Ten = req.body.username;
+            }
+            if (req.body.birth) {
+              existingStaff.NgaySinh = req.body.birth;
+            }
+            if (req.body.sex) {
+              existingStaff.Phai = req.body.sex;
+            }
+            if (req.body.phone) {
+              existingStaff.DienThoai = req.body.phone;
+            }
+            if (req.body.address) {
+              existingStaff.DiaChi = req.body.address;
+            }
+            // Kiểm tra và cập nhật đường dẫn của tệp avatar nếu có
+            if (req.file) {
+              existingStaff.Avatar = req.file.originalname;
+            }
             await existingStaff.save();
             const userData = existingStaff.toObject();
             delete userData.Password;
@@ -227,20 +234,21 @@ class Authentication {
           const id = req.params.id;
           const existingStaff = await NhanVien.findById(id);
           if (existingStaff) {
-            const HoTenNv = req.body.username;
-            const DiaChi = req.body.address;
-            const SoDienThoai = req.body.phone;
-            const ChucVu = req.body.position;
-            const DaiChi = req.body.address;
-            if (req.file) {
-              const Avatar = req.file.originalname;
-              existingStaff.Avatar = Avatar;
+            if (req.body.username) {
+              existingStaff.HoTenNv = req.body.username;
             }
-            existingStaff.HoTenNv = HoTenNv;
-            existingStaff.DiaChi = DiaChi;
-            existingStaff.SoDienThoai = SoDienThoai;
-            existingStaff.ChucVu = ChucVu;
-            existingStaff.DiaChi = DiaChi;
+            if (req.body.address) {
+              existingStaff.DiaChi = req.body.address;
+            }
+            if (req.body.phone) {
+              existingStaff.SoDienThoai = req.body.phone;
+            }
+            if (req.body.position) {
+              existingStaff.ChucVu = req.body.position;
+            }
+            if (req.file) {
+              existingStaff.Avatar = req.file.originalname;
+            }
             await existingStaff.save();
             const userData = existingStaff.toObject();
             delete userData.Password;

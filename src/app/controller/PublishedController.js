@@ -49,8 +49,12 @@ class PublishedController {
       const id = req.params.id;
       const existingPublished = await NhaXuatBan.findById(id);
       if (existingPublished) {
-        existingPublished.TenNxb = req.body.tenNxb;
-        existingPublished.DiaChi = req.body.diaChi;
+        if (req.body.tenNxb) {
+          existingPublished.TenNxb = req.body.tenNxb;
+        }
+        if (req.body.diaChi) {
+          existingPublished.DiaChi = req.body.diaChi;
+        }
         await existingPublished.save();
         return res.json({ message: "Nhà xuất bản đã được cập nhật" });
       } else {
