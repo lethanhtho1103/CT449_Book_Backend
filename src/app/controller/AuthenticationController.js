@@ -61,11 +61,11 @@ class Authentication {
           const NgaySinh = req.body.birth;
           const Phai = req.body.sex;
           const DiaChi = req.body.address;
-          const SoDienThoai = req.body.phone;
+          const DienThoai = req.body.phone;
           const Password = req.body.password;
           const hashedPassword = await userServices.hashPassword(Password);
           const Avatar = req.file ? req.file.originalname : null;
-          const existingUser = await DocGia.findOne({ SoDienThoai });
+          const existingUser = await DocGia.findOne({ DienThoai });
           if (existingUser) {
             return res.json({ error: "Người dùng đã tồn tại" });
           } else {
@@ -75,7 +75,7 @@ class Authentication {
               NgaySinh,
               Phai,
               DiaChi,
-              SoDienThoai,
+              DienThoai,
               Password: hashedPassword,
               Avatar,
             });
@@ -93,29 +93,30 @@ class Authentication {
   }
 
   async login(req, res, next) {
-    const SoDienThoai = req.body.phone;
+    const DienThoai = req.body.phone;
     const Password = req.body.password;
     try {
-      const existingUser = await DocGia.findOne({ SoDienThoai });
+      const existingUser = await DocGia.findOne({ DienThoai });
       if (!existingUser) {
-        return res.send({ error: "Tài khoản không tồn tại" });
+        return res.json({ error: "Tài khoản không tồn tại" });
       } else {
         const checkPassword = await userServices.checkPassword(
           Password,
           existingUser.Password
         );
         if (!checkPassword) {
-          return res.send({ error: "Sai mật khẩu" });
+          return res.json({ error: "Sai mật khẩu" });
         } else {
-          return res.send({
+          const userData = existingUser.toObject();
+          delete userData.Password;
+          return res.json({
             message: "Đăng nhập thành công",
-            data: existingUser,
+            data: userData,
           });
         }
       }
     } catch (error) {
-      console.log("Lỗi khi đăng nhập", error);
-      res.status(500).json({ message: "Lôi khi đăng nhập" });
+      res.status(500).json({ message: error.message });
     }
   }
 
@@ -125,145 +126,133 @@ class Authentication {
     try {
       const existingUser = await NhanVien.findOne({ SoDienThoai });
       if (!existingUser) {
-        return res.send({ error: "Tài khoản không tồn tại" });
+        return res.json({ error: "Tài khoản không tồn tại" });
       } else {
         const checkPassword = await userServices.checkPassword(
           Password,
           existingUser.Password
         );
         if (!checkPassword) {
-          return res.send({ error: "Sai mật khẩu" });
+          return res.json({ error: "Sai mật khẩu" });
         } else {
-          return res.send({
+          const userData = existingUser.toObject();
+          delete userData.Password;
+          return res.json({
             message: "Đăng nhập thành công",
-            data: existingUser,
+            data: userData,
           });
         }
       }
     } catch (error) {
-      console.log("Lỗi khi đăng nhập", error);
-      res.status(500).json({ message: "Lôi khi đăng nhập" });
+      res.status(500).json({ message: error.message });
     }
   }
 
   logout(req, res, next) {
-    return res.send("Dang xuat");
+    return res.json({ message: "Đăng xuất thành công" });
   }
 
-  // inforUser(req, res, next) {
-  //     // const id = req.params.id;
-  //     DocGia.find()
-  //         // .then(DocGia => res.send({ DocGia: multipleMongoseToObject(DocGia) })
-  //         // )
-  //         .then(DocGia => res.send(DocGia)
-  //         )
-
-  //         .catch((err) => {
-  //             console.error('Lỗi khi tìm kiếm khách hàng:', err);
-  //         });
-  // }
-
-  inforUser(req, res, next) {
+  infoUser(req, res, next) {
     const id = req.params.id;
     DocGia.findById(id)
       .then((DocGia) => res.send(DocGia))
-
       .catch((err) => {
-        console.error("Lỗi khi tìm kiếm khách hàng:", err);
+        res.send("Lỗi khi tìm kiếm độc giả:");
       });
   }
-  editProfile(req, res, next) {
-    const upload = multer({ storage: storage }).single("image");
 
+  editProfile(req, res, next) {
+    const upload = multer({ storage: storage }).single("avatar");
     upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
-        return res.status(400).json({ error: "Lỗi tải lên tệp" });
+        return res.status(400).json({ error: err.message });
       } else if (err) {
-        return res.status(500).json({ error: "Lỗi tải lên tệp" });
+        return res.status(500).json({ error: err.message });
       } else {
         try {
           const id = req.params.id;
-          const existingProduct = await DocGia.findById(id);
-          if (existingProduct) {
-            const HoTenKH = req.body.name;
-            const SoDienThoai = req.body.phone;
+          const existingStaff = await DocGia.findById(id);
+          if (existingStaff) {
+            const HoLot = req.body.lastName;
+            const Ten = req.body.username;
+            const NgaySinh = req.body.birth;
+            const Phai = req.body.sex;
+            const DienThoai = req.body.phone;
             const DiaChi = req.body.address;
             if (req.file) {
-              const AnhDaiDien = req.file.originalname;
-              existingProduct.HoTenKH = HoTenKH;
-              existingProduct.SoDienThoai = SoDienThoai;
-              existingProduct.DiaChi = DiaChi;
-              existingProduct.AnhDaiDien = AnhDaiDien;
-              await existingProduct.save();
-              return res.json({ message: "Thông tin đã được cập nhật" });
-            } else {
-              existingProduct.HoTenKH = HoTenKH;
-              existingProduct.SoDienThoai = SoDienThoai;
-              existingProduct.DiaChi = DiaChi;
-              await existingProduct.save();
-              return res.json({ message: "Thông tin đã được cập nhật" });
+              const Avatar = req.file.originalname;
+              existingStaff.Avatar = Avatar;
             }
+            existingStaff.HoLot = HoLot;
+            existingStaff.Ten = Ten;
+            existingStaff.NgaySinh = NgaySinh;
+            existingStaff.Phai = Phai;
+            existingStaff.DienThoai = DienThoai;
+            existingStaff.DiaChi = DiaChi;
+            await existingStaff.save();
+            const userData = existingStaff.toObject();
+            delete userData.Password;
+            return res.json({
+              message: "Thông tin đã được cập nhật",
+              data: userData,
+            });
           } else {
-            return res.send({ error: "Cập nhật thất bại" });
+            return res.json({ error: "Cập nhật thất bại" });
           }
         } catch (error) {
-          console.log("Lỗi khi cập nhật thức uống", error);
-          res.status(500).json({ message: "Lỗi khi cập nhật thức uống" });
+          res.status(500).json({ message: error.message });
         }
       }
     });
   }
 
-  inforStaff(req, res, next) {
+  infoStaff(req, res, next) {
     const id = req.params.id;
     NhanVien.findById(id)
       .then((nhanvien) => res.send(nhanvien))
-
       .catch((err) => {
-        console.error("Lỗi khi tìm kiếm khách hàng:", err);
+        res.status().json("Lỗi khi tìm kiếm nhân viên:", err.message);
       });
   }
 
   editProfileStaff(req, res, next) {
-    const upload = multer({ storage: storage }).single("image");
-
+    const upload = multer({ storage: storage }).single("avatar");
     upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
-        return res.status(400).json({ error: "Lỗi tải lên tệp" });
+        return res.status(400).json({ error: err.message });
       } else if (err) {
-        return res.status(500).json({ error: "Lỗi tải lên tệp" });
+        return res.status(500).json({ error: err.message });
       } else {
         try {
           const id = req.params.id;
-          const existingProduct = await NhanVien.findById(id);
-          if (existingProduct) {
-            const HoTenNV = req.body.name;
-            const SoDienThoai = req.body.phone;
+          const existingStaff = await NhanVien.findById(id);
+          if (existingStaff) {
+            const HoTenNv = req.body.username;
             const DiaChi = req.body.address;
-            const ChucVu = req.body.chucvu;
+            const SoDienThoai = req.body.phone;
+            const ChucVu = req.body.position;
+            const DaiChi = req.body.address;
             if (req.file) {
-              const AnhDaiDien = req.file.originalname;
-              existingProduct.HoTenNV = HoTenNV;
-              existingProduct.SoDienThoai = SoDienThoai;
-              existingProduct.ChucVu = ChucVu;
-              existingProduct.DiaChi = DiaChi;
-              existingProduct.AnhDaiDien = AnhDaiDien;
-              await existingProduct.save();
-              return res.json({ message: "Thông tin đã được cập nhật" });
-            } else {
-              existingProduct.HoTenNV = HoTenNV;
-              existingProduct.SoDienThoai = SoDienThoai;
-              existingProduct.ChucVu = ChucVu;
-              existingProduct.DiaChi = DiaChi;
-              await existingProduct.save();
-              return res.json({ message: "Thông tin đã được cập nhật" });
+              const Avatar = req.file.originalname;
+              existingStaff.Avatar = Avatar;
             }
+            existingStaff.HoTenNv = HoTenNv;
+            existingStaff.DiaChi = DiaChi;
+            existingStaff.SoDienThoai = SoDienThoai;
+            existingStaff.ChucVu = ChucVu;
+            existingStaff.DiaChi = DiaChi;
+            await existingStaff.save();
+            const userData = existingStaff.toObject();
+            delete userData.Password;
+            return res.json({
+              message: "Thông tin đã được cập nhật",
+              data: userData,
+            });
           } else {
-            return res.send({ error: "Cập nhật thất bại" });
+            return res.json({ error: err.message });
           }
         } catch (error) {
-          console.log("Lỗi khi cập nhật thức uống", error);
-          res.status(500).json({ message: "Lỗi khi cập nhật thức uống" });
+          res.status(500).json({ message: error.message });
         }
       }
     });
