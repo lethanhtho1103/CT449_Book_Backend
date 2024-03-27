@@ -1,5 +1,7 @@
 const DocGia = require("../models/DocGia");
 const NhanVien = require("../models/NhanVien");
+const TheoDoiMuonSach = require("../models/TheoDoiMuonSach");
+
 class CustomerController {
   async listUser(req, res, next) {
     try {
@@ -22,9 +24,9 @@ class CustomerController {
     try {
       const user = await DocGia.countDocuments();
       const staff = await NhanVien.countDocuments();
-      const order = await DonHang.find({ TrangthaiDH: { $ne: "D" } });
-      const orderPending = await DonHang.find({ TrangthaiDH: "W" });
-      return res.json({ user, staff, order, orderPending });
+      const rent = await TheoDoiMuonSach.find({ TrangThai: "A" });
+      const rentWaiting = await TheoDoiMuonSach.find({ TrangThai: "W" });
+      return res.json({ user, staff, rent, rentWaiting });
     } catch (error) {
       console.log("Lỗi khi thêm lấy dữ liệu", error);
       res.status(500).json({ message: "Lỗi khi thêm lấy dữ liệu" });
