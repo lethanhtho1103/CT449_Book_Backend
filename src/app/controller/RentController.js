@@ -20,7 +20,7 @@ class RentController {
         SoLuong: soLuong,
         NgayMuon: ngayMuon,
         NgayTra: ngayTra,
-        TrangThai: "R",
+        TrangThai: "W",
       });
       await Promise.all([existingSach.save(), newTheoDoiMuonSach.save()]);
       return res.json({
@@ -62,8 +62,10 @@ class RentController {
 
   async listRents(req, res, next) {
     try {
-      TheoDoiMuonSach.find()
+      const TrangThai = req.params.trangThai;
+      TheoDoiMuonSach.find({ TrangThai: TrangThai })
         .populate("MaSach")
+        .populate("MaDocGia")
         .then((TheoDoiMuonSachs) => {
           return res.send(TheoDoiMuonSachs);
         })
@@ -80,7 +82,7 @@ class RentController {
       const existingRent = await TheoDoiMuonSach.findById(id);
       if (!existingRent) return res.json({ error: "Không tìm thấy id." });
 
-      existingRent.MaDocGia = req.body.maDocGia || existingRent.maDocGia;
+      existingRent.MaDocGia = req.body.maDocGia || existingRent.MaDocGia;
       existingRent.MaSach = req.body.maSach || existingRent.MaSach;
       existingRent.NgayMuon = req.body.ngayMuon || existingRent.NgayMuon;
       existingRent.NgayTra = req.body.ngayTra || existingRent.NgayTra;

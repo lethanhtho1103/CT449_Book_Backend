@@ -5,7 +5,7 @@ const DocGia = new Schema({
   HoLot: { type: String, maxLength: 255 },
   Ten: { type: String, maxLength: 255 },
   NgaySinh: { type: String, maxLength: 255 },
-  Phai: { type: Number },
+  Phai: { type: String, maxLength: 255 },
   DiaChi: { type: String, maxLength: 255 },
   DienThoai: { type: String, maxLength: 255 },
   Password: { type: String, maxLength: 255 },
