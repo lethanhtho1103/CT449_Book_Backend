@@ -8,6 +8,8 @@ const TheoDoiMuonSach = new Schema({
   NgayTra: { type: Date },
   SoLuong: { type: Number },
   TrangThai: { type: String, maxLength: 10 },
+  TraSach: { type: String, maxLength: 10 },
+  ThanhTien: { type: Number },
 });
 
 module.exports = mongoose.model("TheoDoiMuonSach", TheoDoiMuonSach);

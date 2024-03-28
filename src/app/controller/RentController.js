@@ -21,6 +21,8 @@ class RentController {
         NgayMuon: ngayMuon,
         NgayTra: ngayTra,
         TrangThai: "W",
+        TraSach: "",
+        ThanhTien: 0,
       });
       await Promise.all([existingSach.save(), newTheoDoiMuonSach.save()]);
       return res.json({
@@ -60,19 +62,50 @@ class RentController {
     }
   }
 
+  // async listRents(req, res, next) {
+  //   try {
+  //     const TrangThai = req.params.trangThai;
+  //     TheoDoiMuonSach.find({ TrangThai: TrangThai })
+  //       .populate("MaSach")
+  //       .populate("MaDocGia")
+  //       .then((TheoDoiMuonSachs) => {
+  //         return res.send(TheoDoiMuonSachs);
+  //       })
+  //       .catch((err) => res.json({ message: err.message }));
+  //   } catch (error) {
+  //     console.log("Lỗi khi thêm uống", error);
+  //     res.status(500).json({ message: error.message });
+  //   }
+  // }
+
   async listRents(req, res, next) {
-    try {
-      const TrangThai = req.params.trangThai;
-      TheoDoiMuonSach.find({ TrangThai: TrangThai })
-        .populate("MaSach")
-        .populate("MaDocGia")
-        .then((TheoDoiMuonSachs) => {
-          return res.send(TheoDoiMuonSachs);
+    const searchQuery = req.query.trangThai;
+    if (searchQuery) {
+      try {
+        TheoDoiMuonSach.find({
+          TrangThai: { $regex: searchQuery, $options: "i" },
         })
-        .catch((err) => res.json({ message: err.message }));
-    } catch (error) {
-      console.log("Lỗi khi thêm uống", error);
-      res.status(500).json({ message: error.message });
+          .populate("MaSach")
+          .populate("MaDocGia")
+          .then((TheoDoiMuonSachs) => {
+            return res.send(TheoDoiMuonSachs);
+          })
+          .catch((err) => res.json({ message: err.message }));
+      } catch (error) {
+        res.status(500).json({ message: error.message });
+      }
+    } else {
+      try {
+        TheoDoiMuonSach.find({})
+          .populate("MaSach")
+          .populate("MaDocGia")
+          .then((TheoDoiMuonSachs) => {
+            return res.send(TheoDoiMuonSachs);
+          })
+          .catch((err) => res.json({ message: err.message }));
+      } catch (error) {
+        res.status(500).json({ message: error.message });
+      }
     }
   }
 
@@ -81,13 +114,14 @@ class RentController {
       const id = req.params.id;
       const existingRent = await TheoDoiMuonSach.findById(id);
       if (!existingRent) return res.json({ error: "Không tìm thấy id." });
-
       existingRent.MaDocGia = req.body.maDocGia || existingRent.MaDocGia;
       existingRent.MaSach = req.body.maSach || existingRent.MaSach;
       existingRent.NgayMuon = req.body.ngayMuon || existingRent.NgayMuon;
       existingRent.NgayTra = req.body.ngayTra || existingRent.NgayTra;
       existingRent.SoLuong = req.body.soLuong || existingRent.SoLuong;
       existingRent.TrangThai = req.body.trangThai || existingRent.TrangThai;
+      existingRent.TraSach = req.body.traSach || existingRent.TraSach;
+      existingRent.ThanhTien = req.body.thanhTien || existingRent.ThanhTien;
 
       await existingRent.save();
       return res.send({ message: "Cập nhật thành công", data: existingRent });

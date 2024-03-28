@@ -25,8 +25,9 @@ class CustomerController {
       const user = await DocGia.countDocuments();
       const staff = await NhanVien.countDocuments();
       const rent = await TheoDoiMuonSach.find({ TrangThai: "A" });
+      const rentDenied = await TheoDoiMuonSach.find({ TrangThai: "D" });
       const rentWaiting = await TheoDoiMuonSach.find({ TrangThai: "W" });
-      return res.json({ user, staff, rent, rentWaiting });
+      return res.json({ user, staff, rent, rentDenied, rentWaiting });
     } catch (error) {
       console.log("Lỗi khi thêm lấy dữ liệu", error);
       res.status(500).json({ message: "Lỗi khi thêm lấy dữ liệu" });
