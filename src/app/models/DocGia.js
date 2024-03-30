@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const DocGia = new Schema({
-  HoLot: { type: String, maxLength: 255 },
   Ten: { type: String, maxLength: 255 },
   NgaySinh: { type: String, maxLength: 255 },
   Phai: { type: String, maxLength: 255 },

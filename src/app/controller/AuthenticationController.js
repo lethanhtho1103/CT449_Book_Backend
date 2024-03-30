@@ -56,7 +56,6 @@ class Authentication {
         return res.status(500).json({ error: "Lỗi tải lên tệp" });
       } else {
         try {
-          const HoLot = req.body.lastName;
           const Ten = req.body.username;
           const NgaySinh = req.body.birth;
           const Phai = req.body.sex;
@@ -70,7 +69,6 @@ class Authentication {
             return res.json({ error: "Người dùng đã tồn tại" });
           } else {
             const newDocGia = new DocGia({
-              HoLot,
               Ten,
               NgaySinh,
               Phai,
@@ -173,10 +171,6 @@ class Authentication {
           const id = req.params.id;
           const existingStaff = await DocGia.findById(id);
           if (existingStaff) {
-            // Kiểm tra và cập nhật dữ liệu từ req.body
-            if (req.body.lastName) {
-              existingStaff.HoLot = req.body.lastName;
-            }
             if (req.body.username) {
               existingStaff.Ten = req.body.username;
             }
