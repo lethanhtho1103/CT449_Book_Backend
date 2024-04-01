@@ -4,12 +4,13 @@ const Sach = require("../models/Sach");
 class RentController {
   async addToRent(req, res, next) {
     try {
-      const { maDocGia, maSach, ngayMuon, ngayTra, soLuong } = req.body;
+      const { maDocGia, maSach, ngayMuon, ngayTra, soLuong, thanhTien } =
+        req.body;
       const [existingSach, existingDocGia] = await Promise.all([
         Sach.findById(maSach),
         DocGia.findById(maDocGia),
       ]);
-      if (!existingSach) return res.json({ error: "Không tìm thấy sản phẩm" });
+      if (!existingSach) return res.json({ error: `Không tìm thấy sách` });
       if (!existingDocGia) return res.json({ error: "Không tìm thấy đọc giả" });
       if (soLuong > existingSach.SoQuyen)
         return res.json({ error: "Số lượng hàng không đủ" });
@@ -22,11 +23,11 @@ class RentController {
         NgayTra: ngayTra,
         TrangThai: "W",
         TraSach: "",
-        ThanhTien: 0,
+        ThanhTien: thanhTien,
       });
       await Promise.all([existingSach.save(), newTheoDoiMuonSach.save()]);
       return res.json({
-        message: "Mượn sách thành công",
+        message: "Đăng ký mượn sách thành công.",
         data: newTheoDoiMuonSach,
       });
     } catch (error) {
@@ -57,6 +58,31 @@ class RentController {
           return res.send(TheoDoiMuonSachs);
         })
         .catch((err) => res.json({ message: err.message }));
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  async filterByTenDocGia(req, res, next) {
+    try {
+      const searchQuery = req.query.tenDocGia;
+      const searchTraSach = req.query.traSach;
+      let query = {};
+
+      if (searchTraSach)
+        query.TraSach = { $regex: searchTraSach, $options: "i" };
+      if (searchQuery)
+        query["MaDocGia.Ten"] = { $regex: searchQuery, $options: "i" };
+
+      const theoDoiMuonSachs = await TheoDoiMuonSach.find(query).populate({
+        path: "MaDocGia",
+        match: { Ten: { $regex: searchQuery, $options: "i" } },
+      });
+
+      const filteredResults = theoDoiMuonSachs.filter(
+        (item) => item.MaDocGia !== null
+      );
+      res.send(filteredResults);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

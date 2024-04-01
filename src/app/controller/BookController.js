@@ -59,7 +59,7 @@ class BookController {
               HinhSach,
             });
             await newSach.save();
-            return res.json({ message: "Sách đã được thêm" });
+            return res.json({ message: `Sách đã được thêm ${TenSach}` });
           }
         } catch (error) {
           res.status(500).json({ message: err.message });
