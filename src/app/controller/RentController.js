@@ -40,6 +40,7 @@ class RentController {
       const MaDocGia = req.params.id;
       TheoDoiMuonSach.find({ MaDocGia: MaDocGia })
         .populate("MaSach")
+        .populate("MaDocGia")
         .then((TheoDoiMuonSachs) => {
           return res.send(TheoDoiMuonSachs);
         })
@@ -63,30 +64,30 @@ class RentController {
     }
   }
 
-  async filterByTenDocGia(req, res, next) {
-    try {
-      const searchQuery = req.query.tenDocGia;
-      const searchTraSach = req.query.traSach;
-      let query = {};
+  // async filterByTenDocGia(req, res, next) {
+  //   try {
+  //     const searchQuery = req.query.tenDocGia;
+  //     const searchTraSach = req.query.traSach;
+  //     let query = {};
 
-      if (searchTraSach)
-        query.TraSach = { $regex: searchTraSach, $options: "i" };
-      if (searchQuery)
-        query["MaDocGia.Ten"] = { $regex: searchQuery, $options: "i" };
+  //     if (searchTraSach)
+  //       query.TraSach = { $regex: searchTraSach, $options: "i" };
+  //     if (searchQuery)
+  //       query["MaDocGia.Ten"] = { $regex: searchQuery, $options: "i" };
 
-      const theoDoiMuonSachs = await TheoDoiMuonSach.find(query).populate({
-        path: "MaDocGia",
-        match: { Ten: { $regex: searchQuery, $options: "i" } },
-      });
+  //     const theoDoiMuonSachs = await TheoDoiMuonSach.find(query).populate({
+  //       path: "MaDocGia",
+  //       match: { Ten: { $regex: searchQuery, $options: "i" } },
+  //     });
 
-      const filteredResults = theoDoiMuonSachs.filter(
-        (item) => item.MaDocGia !== null
-      );
-      res.send(filteredResults);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  }
+  //     const filteredResults = theoDoiMuonSachs.filter(
+  //       (item) => item.MaDocGia !== null
+  //     );
+  //     res.send(filteredResults);
+  //   } catch (error) {
+  //     res.status(500).json({ message: error.message });
+  //   }
+  // }
 
   // async listRents(req, res, next) {
   //   try {
@@ -103,6 +104,45 @@ class RentController {
   //     res.status(500).json({ message: error.message });
   //   }
   // }
+
+  async filterByTenDocGia(req, res, next) {
+    try {
+      const searchQuery = req.query.tenDocGia;
+      const searchTraSach = req.query.traSach;
+      let query = {};
+      if (searchTraSach) {
+        query = {
+          TraSach: { $regex: searchTraSach, $options: "i" },
+        };
+      }
+      if (searchQuery) {
+        TheoDoiMuonSach.find(query)
+          .populate({
+            path: "MaDocGia",
+            match: { Ten: { $regex: searchQuery, $options: "i" } },
+          })
+          .then((theoDoiMuonSachs) => {
+            const filteredResults = theoDoiMuonSachs.filter(
+              (item) => item.MaDocGia !== null
+            );
+            return res.send(filteredResults);
+          })
+          .catch((err) => res.json({ message: err.message }));
+      } else {
+        TheoDoiMuonSach.find(query)
+          .populate("MaDocGia")
+          .then((theoDoiMuonSachs) => {
+            const filteredResults = theoDoiMuonSachs.filter(
+              (item) => item.MaDocGia !== null
+            );
+            return res.send(filteredResults);
+          })
+          .catch((err) => res.json({ message: err.message }));
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 
   async listRents(req, res, next) {
     const searchQuery = req.query.trangThai;
@@ -164,10 +204,10 @@ class RentController {
         return res.status(404).json({ error: "Không tìm thấy. " });
       } else {
         await TheoDoiMuonSach.findByIdAndDelete(id);
-        return res.send({ message: "Xóa thành công." });
+        return res.send({ message: "Hủy đơn mượn thành công." });
       }
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa. " });
+      res.status(500).json({ message: "Lỗi khi hủy. " });
     }
   }
 }
